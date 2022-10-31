@@ -1,9 +1,9 @@
 remote_state {
   backend = "s3"
   config = {
-    bucket = "adidas-dev-infrastructure-as-a-code"
+    bucket = "bucket_name_infra_sct_as_code"
     
-    key = "adidas/china_region/eu-west-1/dev/aws_id_123445556667788/${path_relative_to_include()}/terraform.tfstate"
+    key = "puma/region/eu-west-1/dev/aws_id_123445556667788/${path_relative_to_include()}/terraform.tfstate"
     region         = "eu-west-1"
     #encrypt        = true
     #dynamodb_table = "my-lock-table"
