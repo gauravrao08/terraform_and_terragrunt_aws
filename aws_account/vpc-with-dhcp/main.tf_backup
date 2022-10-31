@@ -1,0 +1,62 @@
+module "vpc" {
+  source = "../../../../../modules/vpc"
+
+  name             = "vpc-new-dhcp"   ## Update Name of VPC
+  cidr             = "192.168.0.0/16"   ## Update CIDR block of VPC
+  azs              = ["${local.region}a", "${local.region}b", "${local.region}c"]   ## update all the AZs in same way, if particular AZs is not remove that
+  private_subnets  = ["192.168.1.0/24", "192.168.2.0/24", "192.168.3.0/24"]         ## update CIDR range for private subnet
+  public_subnets   = ["192.168.101.0/24", "192.168.102.0/24", "192.168.103.0/24"]   ## update CIDR for public subnet
+  #database_subnets = ["192.168.21.0/24", "192.168.22.0/24", "192.168.23.0/24"]   ## if you are creating 3-tier arch then enable this database subnet for RDS where internet is not required
+
+  enable_ipv6                  = false   ## Update to "true" if need ipv6
+  #create_database_subnet_group = false ## if want to create database subnet with VPC, otherwise you can create database subnet with RDS
+  enable_nat_gateway           = true   ## always true, if you need local entry in your route table
+  single_nat_gateway           = true     ## always true, if you need NAT-gateway for private subnet
+
+########################################################
+  enable_dhcp_options              = true
+  dhcp_options_domain_name         = "service.consul"
+  dhcp_options_domain_name_servers = ["127.0.0.1", "10.10.0.2"]
+ /* dhcp_options_ntp_servers = 
+  dhcp_options_netbios_name_servers =
+  dhcp_options_netbios_node_type = */
+  
+  dhcp_options_tags = {                ## add tags
+      dhcp-name = "gaurav-dhcp"
+      manage-by = "terraform"
+  }
+#####################################################################
+## NOTE :: Don't Remove tag which contain key or value as "terraform"
+#####################################################################
+  public_subnet_tags = {
+    	createdby = "terraform"           ## Dont remove this tag
+      subnet_type = "public"            ## Dont remove this tag
+  }
+
+  private_subnet_tags = {
+    	createdby = "terraform"           ## dont remove this tag
+      subnet_type = "private"           ## Dont remove this tag
+  }
+
+  tags = {
+    	Owner       = "gaurav"
+    	Environment = "dev"             ## add tags
+      manage-through = "terraform"        ## dont remove this tag
+  }
+
+  vpc_tags = {
+    	createby = "vpc-gaurav"         ## add tags
+      manage-by = "terraform"         ## dont remove this tag
+  }
+
+  /*database_subnet_tags = {
+    	db_subnet = "vpc-gaurav-subnet"     ## add tags
+      manage-by = "terraform"
+  }*/
+
+  /*database_subnet_group_tags = {
+  	createdby = "subnet-net-gaurav"       ## add tags
+    manage-by = "terraform"
+  }*/
+
+}

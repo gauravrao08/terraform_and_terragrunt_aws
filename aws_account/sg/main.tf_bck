@@ -1,0 +1,85 @@
+data "aws_vpc" "myvpc" {
+  tags = {
+    Owner       = "gaurav"      ## these are tags of VPC
+    Environment = "dev"         ## update tags these tags should match with your VPC tags in which you need to create Security Group
+  }
+}
+
+#######################################################################################
+
+module "ipv4_ipv6_example" {
+  source = "github.com/terraform-aws-modules/terraform-aws-security-group.git"
+
+  name        = "gaurav-test-vpc"     ## update security group name
+  description = "IPv4 and IPv6 example"  ## update security group description
+  vpc_id      = data.aws_vpc.myvpc.id
+  tags = {
+    Department = "gaurav rao"
+    Project    = "yadav"        ## update tags of security group
+    manage-by = "terraform"      ## NOTE :: dont remove this tags ####
+  }
+
+
+#############################################################
+#### Ingress role for IPV4 in-bound###############
+#########################################################
+  ingress_with_cidr_blocks = [
+    {
+      from_port   = 8080
+      to_port     = 8090
+      protocol    = "tcp"
+      description = "User-service ports (ipv4)"
+      cidr_blocks = "0.0.0.0/0"
+    },
+    {
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      description = "User-service ports (ipv4)"
+      cidr_blocks = "192.168.2.0/24"
+    },
+  ]
+
+
+#############################################################
+#### Ingress role for IPV6 in-bound###############
+#########################################################
+
+  ingress_with_ipv6_cidr_blocks = [
+    {
+      from_port        = 8080
+      to_port          = 8090
+      protocol         = "tcp"
+      description      = "User-service ports (ipv6)"
+      ipv6_cidr_blocks = "2001:db8::/64"
+    },
+  ]
+
+
+#############################################################
+#### Egress role for IPV4 OUT-bound###############
+#########################################################
+  egress_with_cidr_blocks = [
+    {
+      from_port   = all
+      to_port     = all
+      protocol    = "tcp"
+      description = "User-service ports (ipv4)"
+      cidr_blocks = "0.0.0.0/0"
+    },
+  ]
+
+#############################################################
+#### Egress role for IPV6 OUT-bound###############
+#########################################################
+
+  egress_with_ipv6_cidr_blocks = [
+    {
+      from_port        = all
+      to_port          = all
+      protocol         = "tcp"
+      description      = "User-service ports (ipv6)"
+      ipv6_cidr_blocks = "2001:db8::/64"
+    },
+  ]
+}
